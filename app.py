@@ -4,8 +4,8 @@ import uuid
 from flask import Flask, redirect, request, url_for
 
 from utils.env import APP_URL, CLIENT_ID, CLIENT_SECRET
-from utils.sessions import store_session
-from utils.spotify import get_queue, get_access_token, refresh_sessions
+from utils.sessions import store_session, refresh_sessions
+from utils.spotify import get_queue, get_access_token
 
 app = Flask(__name__)
 

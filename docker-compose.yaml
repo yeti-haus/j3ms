@@ -1,0 +1,34 @@
+services:
+  app:
+    build:
+      dockerfile: Dockerfile
+    ports:
+      - 8080:8080
+    environment:
+      - POSTGRES_URI=postgresql://postgres:postgres@postgres/postgres
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+    volumes:
+      - .:/app
+    restart: always
+
+  cron:
+    build:
+      dockerfile: Dockerfile.cron
+    depends_on:
+      - app
+    restart: always
+
+  postgres:
+    image: postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - ./tmp/postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=postres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+    restart: always

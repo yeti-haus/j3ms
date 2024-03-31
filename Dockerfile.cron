@@ -1,0 +1,9 @@
+FROM alpine
+
+# copy crontabs for root user
+COPY assets/cron.txt /etc/crontabs/root
+
+RUN apk --no-cache add curl
+
+# start crond with log level 8 in foreground, output to stderr
+CMD ["crond", "-f", "-d", "8"]

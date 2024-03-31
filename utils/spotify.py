@@ -1,14 +1,16 @@
 import base64
 import requests
-from datetime import datetime, timedelta
 
-from .db import exec_query
 from .env import APP_URL, CLIENT_ID, CLIENT_SECRET
-from .sessions import get_auth_token, store_session
 
 
 def send_auth_request(username, path):
+    from .sessions import get_auth_token
+
     access_token = get_auth_token(username)
+    if not access_token:
+        return None
+
     r = requests.get(
         f"https://api.spotify.com/v1/me{path}",
         headers={"Authorization": f"Bearer {access_token}"},
@@ -45,18 +47,6 @@ def get_access_token(code=None, refresh_token=None):
     return r.json()
 
 
-def refresh_sessions():
-    soon = datetime.now() + timedelta(minutes=60)
-    rows_to_refresh = exec_query(
-        f"SELECT username, refresh_token FROM sessions WHERE expires_at < '{soon}'"
-    )
-
-    for username, refresh_token in rows_to_refresh:
-        print("Refreshing", username)
-        get_access_token(refresh_token=refresh_token)
-        store_session(username, get_access_token(refresh_token=refresh_token))
-
-
 def simplify_queue_item(qi):
     # only process songs (for now)
     # https://developer.spotify.com/documentation/web-api/reference/get-queue
@@ -74,6 +64,8 @@ def simplify_queue_item(qi):
 
 def get_queue(username):
     raw_queue = send_auth_request(username, "/player/queue")
+    if not raw_queue:
+        return []
     queue = []
 
     if "currently_playing" in raw_queue:
