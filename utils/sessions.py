@@ -5,7 +5,7 @@ from .db import exec_query
 
 def store_session(username, auth_resp):
     access_token = auth_resp["access_token"]
-    refresh_token = auth_resp["refresh_token"]
+    refresh_token = auth_resp["refresh_token"] if "refresh_token" in auth_resp else None
     scope = auth_resp["scope"]
     expires_at = datetime.now() + timedelta(seconds=auth_resp["expires_in"])
 
@@ -18,7 +18,7 @@ def store_session(username, auth_resp):
         ON CONFLICT (username)
         DO UPDATE SET
             access_token = excluded.access_token,
-            refresh_token = excluded.refresh_token,
+            refresh_token = (case when excluded.refresh_token is not null then excluded.refresh_token else sessions.refresh_token end),
             scope = excluded.scope,
             expires_at = excluded.expires_at
                """,
