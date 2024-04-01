@@ -40,7 +40,7 @@
     <ol>
       {% for qi in queue[1:] %}
       <li>
-        <span>{{qi["name"]}} - {{qi["artists"]}}</span>
+        <span><a href="/{{username}}/{{qi['id']}}">{{qi["name"]}}</a> - {{qi["artists"]}}</span>
         {% if 'dj' in qi %}
         <ul>
           <li>

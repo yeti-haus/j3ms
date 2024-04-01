@@ -75,7 +75,7 @@ def simplify_queue_item(qi):
 
 def get_queue(username):
     raw_queue = send_auth_request(username, "/v1/me/player/queue")
-    if not raw_queue:
+    if not raw_queue or "queue" not in raw_queue:
         return []
     queue = []
 
