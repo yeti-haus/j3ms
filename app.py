@@ -5,9 +5,21 @@ from flask import Flask, redirect, request, url_for, render_template
 from utils.env import APP_URL, CLIENT_ID
 from utils.frames import generate_frame_for_queue_item
 from utils.sessions import store_session, refresh_sessions
-from utils.spotify import get_queue, get_access_token, send_auth_request
+from utils.spotify import (
+    get_queue,
+    get_access_token,
+    send_auth_request,
+    simplify_queue_item,
+)
 
 app = Flask(__name__)
+
+
+# https://open.spotify.com/track/52ZQTzXbbWjS4kjOcV3z5b
+@app.after_request
+def add_cache_control_header(resp):
+    resp.headers["Cache-Control"] = "max-age=60"
+    return resp
 
 
 @app.route("/auth")
@@ -63,17 +75,20 @@ def now_playing(username):
             if track_id not in [qi["id"] for qi in queue]:
                 print("Adding track to queue", track_id)
                 active_device_id = ""
-                devices = send_auth_request(username, "/player/devices")
+                devices = send_auth_request(username, "/v1/me/player/devices")
                 if "devices" in devices:
                     for d in devices["devices"]:
                         if "is_active" in d and d["is_active"]:
                             active_device_id = d["id"]
                 send_auth_request(
                     username,
-                    f"/player/queue?device_id={active_device_id}&uri=spotify:track:{track_id}",
+                    f"/v1/me/player/queue?device_id={active_device_id}&uri=spotify:track:{track_id}",
                     method="post",
                 )
-                queue = get_queue(username)
+            return redirect(
+                url_for("track_by_user", username=username, track_id=track_id)
+                + "?added=true"
+            )
 
         frame_img = generate_frame_for_queue_item(queue[0]) if queue else None
         return render_template(
@@ -83,6 +98,27 @@ def now_playing(username):
     except Exception as e:
         print(e)
         return render_template("queue.html")
+
+
+@app.route("/<string:username>/<string:track_id>", methods=["GET", "POST"])
+def track_by_user(username, track_id):
+    if request.method == "POST" and not request.args.get("added"):
+        return redirect(url_for("now_playing", username=username))
+
+    queue = get_queue(username)
+    if not queue:
+        return render_template("track.html")
+
+    track = send_auth_request(username, f"/v1/tracks/{track_id}")
+    track = simplify_queue_item(track)
+    cover_img = generate_frame_for_queue_item(track)
+
+    return render_template(
+        "track.html",
+        username=username,
+        track=track,
+        cover_img=cover_img,
+    )
 
 
 if __name__ == "__main__":

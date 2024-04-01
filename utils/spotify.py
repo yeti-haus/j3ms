@@ -11,7 +11,7 @@ def send_auth_request(username, path, method="get"):
     if not access_token:
         return None
 
-    url = f"https://api.spotify.com/v1/me{path}"
+    url = f"https://api.spotify.com{path}"
     headers = {"Authorization": f"Bearer {access_token}"}
 
     if method == "post":
@@ -73,7 +73,7 @@ def simplify_queue_item(qi):
 
 
 def get_queue(username):
-    raw_queue = send_auth_request(username, "/player/queue")
+    raw_queue = send_auth_request(username, "/v1/me/player/queue")
     if not raw_queue:
         return []
     queue = []

@@ -19,7 +19,7 @@ def generate_frame_for_queue_item(qi):
     draw.rectangle(((0, 0), cover_img.size), fill=(0, 0, 0, 0))
     draw.rectangle(
         ((0, cover_img.size[0] - 50 - 24 - 48 * line_count - 30), cover_img.size),
-        fill=(0, 0, 0, int(0.4 * 255)),
+        fill=(0, 0, 0, int(0.9 * 255)),
     )
     draw.multiline_text(
         (50, cover_img.size[0] - 50 - 24 - 48 * line_count - 12), content, font_size=48
