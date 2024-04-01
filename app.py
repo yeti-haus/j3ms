@@ -3,9 +3,11 @@ import uuid
 from flask import Flask, redirect, request, url_for, render_template
 
 from utils.env import APP_URL, CLIENT_ID
+from utils.farcaster import get_fname_from_fid
 from utils.frames import generate_frame_for_queue_item
 from utils.sessions import store_session, refresh_sessions
 from utils.spotify import (
+    attribute_track_addition,
     get_queue,
     get_access_token,
     send_auth_request,
@@ -64,9 +66,12 @@ def now_playing(username):
             return render_template("queue.html")
 
         raw_add = request.form.get("spotify_uri")
+        fname = None
         try:
             if not raw_add:
                 raw_add = request.json["untrustedData"]["inputText"]
+                fid = request.json["untrustedData"]["fid"]
+                fname = get_fname_from_fid(fid)
         except Exception:
             pass
 
@@ -85,6 +90,9 @@ def now_playing(username):
                     f"/v1/me/player/queue?device_id={active_device_id}&uri=spotify:track:{track_id}",
                     method="post",
                 )
+            if fname:
+                attribute_track_addition(username, track_id, f"fname:{fname}")
+
             return redirect(
                 url_for("track_by_user", username=username, track_id=track_id)
                 + "?added=true"

@@ -5,20 +5,31 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <meta property="og:headline" content="J3ms Queue | {{username}} | {{track['name']}}" />
-    <meta name="twitter:headline" content="J3ms Queue | {{username}} | {{track['name']}}" />
+    <meta
+      property="og:headline"
+      content="J3ms Queue | {{username}} | {{track['name']}}"
+    />
+    <meta
+      name="twitter:headline"
+      content="J3ms Queue | {{username}} | {{track['name']}}"
+    />
 
     <meta property="fc:frame" content="vNext" />
     <meta property="fc:frame:image" content="{{cover_img}}" />
     <meta property="fc:frame:image:aspect_ratio" content="1:1" />
     <meta property="fc:frame:button:1" content="Back to Queue" />
+
+    <meta property="fc:frame:button:2" content="Listen on Spotify" />
+    <meta property="fc:frame:button:2:action" content="link" />
+    <meta property="fc:frame:button:2:target" content="https://open.spotify.com/track/{{track['id']}}" />
   </head>
 
   <body>
     {% if track %}
     <img src="{{cover_img}}" width="300px" />
     <br />
-    <h3><a href="/{{username}}">Back to Queue</a></h3>
+    <a href="/{{username}}"><button>Back to Queue</button></a>
+    <a href="https://open.spotify.com/track/{{track['id']}}" target="_blank"><button>Listen Now</button></a>
     {% else %}
     <h1>Nothing here! Come back later</h1>
     {% endif %}

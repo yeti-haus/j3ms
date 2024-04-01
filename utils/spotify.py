@@ -1,6 +1,7 @@
 import base64
 import requests
 
+from .db import exec_query
 from .env import APP_URL, CLIENT_ID, CLIENT_SECRET
 
 
@@ -84,4 +85,25 @@ def get_queue(username):
     for qi in raw_queue["queue"]:
         queue.append(simplify_queue_item(qi))
 
-    return [v for v in queue if v]
+    valid = [v for v in queue if v]
+    track_ids = [v["id"] for v in valid]
+    added = exec_query(f"SELECT track_id, dj FROM queue_adds WHERE username = '{username}' AND track_id IN ('{"','".join(track_ids)}') AND timestamp > NOW() - INTERVAL '6 HOUR' ORDER BY timestamp ASC")
+    for (track_id, dj) in added:
+        for v in valid:
+            if v["id"] == track_id:
+                (dj_type, dj_id) = dj.split(':')
+                v["dj"] = dj_id
+                if dj_type == "fname":
+                    v["dj_link"] = f"https://warpcast.com/{dj_id}"
+    
+    return valid
+
+
+def attribute_track_addition(username, track_id, dj):
+    exec_query(
+        """
+        INSERT INTO queue_adds (timestamp, username, track_id, dj)
+        VALUES (NOW(), %s, %s, %s)
+        """,
+        (username, track_id, dj),
+    )

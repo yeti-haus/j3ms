@@ -12,7 +12,10 @@
     <meta property="fc:frame:image" content="{{cover_img}}" />
     <meta property="fc:frame:image:aspect_ratio" content="1:1" />
     <meta property="fc:frame:button:1" content="Update" />
-    <meta property="fc:frame:input:text" content="Add (Spotify Link) to queue" />
+    <meta
+      property="fc:frame:input:text"
+      content="Add (Spotify Link) to queue"
+    />
 
     <style type="text/css">
       body {
@@ -24,17 +27,30 @@
   <body>
     {% if queue %}
     <img src="{{cover_img}}" width="300px" />
+    <br />
+    <a href="/{{username}}/{{queue[0]['id']}}"><button>Permalink</button></a>
+    <br />
     <h3>Up Next</h3>
     <form method="post">
-      <label
-        >Add To Queue (Spotify Link):</label>
-        <br />
-        <input type="text" name="spotify_uri" />
-        <br />
+      <label>Add To Queue (Spotify Link):</label>
+      <br />
+      <input type="text" name="spotify_uri" />
+      <br />
     </form>
     <ol>
       {% for qi in queue[1:] %}
-      <li>{{qi["name"]}} - {{qi["artists"]}}</li>
+      <li>
+        <span>{{qi["name"]}} - {{qi["artists"]}}</span>
+        {% if 'dj' in qi %}
+        <ul>
+          <li>
+            added by {% if 'dj_link' in qi %}
+            <a href="{{qi['dj_link']}}" target="_blank">{{qi["dj"]}}</a>
+            {% else %} {{qi["dj"]}} {% endif %}
+          </li>
+        </ul>
+        {% endif %}
+      </li>
       {% endfor %}
     </ol>
     {% else %}
