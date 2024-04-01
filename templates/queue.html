@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>J3ms Queue | {{username}}</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="shortcut icon" type="image/svg" href="/static/black-logo.svg" />
+
+    <meta property="og:headline" content="J3ms Queue | {{username}}" />
+    <meta name="twitter:headline" content="J3ms Queue | {{username}}" />
+
+    <meta property="fc:frame" content="vNext" />
+    <meta property="fc:frame:image" content="{{cover_img}}" />
+    <meta property="fc:frame:image:aspect_ratio" content="1:1" />
+    <meta property="fc:frame:button:1" content="Refresh" />
+
+    <style type="text/css">
+      body {
+        font-family: sans-serif;
+      }
+    </style>
+  </head>
+
+  <body>
+    {% if queue %}
+    <img src="{{cover_img}}"  />
+    <h3>Up Next</h3>
+    <ol>
+      {% for qi in queue[1:] %}
+      <li>{{qi["name"]}} - {{qi["artists"]}}</li>
+      {% endfor %}
+    </ol>
+    {% else %}
+    <h1>Nothing playing! Come back later</h1>
+    {% endif %}
+  </body>
+</html>
