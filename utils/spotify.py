@@ -4,18 +4,27 @@ import requests
 from .env import APP_URL, CLIENT_ID, CLIENT_SECRET
 
 
-def send_auth_request(username, path):
+def send_auth_request(username, path, method="get"):
     from .sessions import get_auth_token
 
     access_token = get_auth_token(username)
     if not access_token:
         return None
 
-    r = requests.get(
-        f"https://api.spotify.com/v1/me{path}",
-        headers={"Authorization": f"Bearer {access_token}"},
-    )
-    return r.json()
+    url = f"https://api.spotify.com/v1/me{path}"
+    headers = {"Authorization": f"Bearer {access_token}"}
+
+    if method == "post":
+        r = requests.post(url, headers=headers)
+        if r.status_code >= 400:
+            raise ValueError(r.text)
+    else:
+        r = requests.get(url, headers=headers)
+        try:
+            return r.json()
+        except Exception as e:
+            print(r.text)
+            raise e
 
 
 def get_access_token(code=None, refresh_token=None):
@@ -44,13 +53,14 @@ def get_access_token(code=None, refresh_token=None):
     if "error" in r:
         print(r.text)
         return None
+
     return r.json()
 
 
 def simplify_queue_item(qi):
     # only process songs (for now)
     # https://developer.spotify.com/documentation/web-api/reference/get-queue
-    if "show" in qi:
+    if not qi or "show" in qi:
         return None
 
     return {

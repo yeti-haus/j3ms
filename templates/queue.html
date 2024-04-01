@@ -4,7 +4,6 @@
     <title>J3ms Queue | {{username}}</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="shortcut icon" type="image/svg" href="/static/black-logo.svg" />
 
     <meta property="og:headline" content="J3ms Queue | {{username}}" />
     <meta name="twitter:headline" content="J3ms Queue | {{username}}" />
@@ -12,7 +11,8 @@
     <meta property="fc:frame" content="vNext" />
     <meta property="fc:frame:image" content="{{cover_img}}" />
     <meta property="fc:frame:image:aspect_ratio" content="1:1" />
-    <meta property="fc:frame:button:1" content="Refresh" />
+    <meta property="fc:frame:button:1" content="Update" />
+    <meta property="fc:frame:input:text" content="Add (Spotify Link) to queue" />
 
     <style type="text/css">
       body {
@@ -23,8 +23,15 @@
 
   <body>
     {% if queue %}
-    <img src="{{cover_img}}"  />
+    <img src="{{cover_img}}" width="300px" />
     <h3>Up Next</h3>
+    <form method="post">
+      <label
+        >Add To Queue (Spotify Link):</label>
+        <br />
+        <input type="text" name="spotify_uri" />
+        <br />
+    </form>
     <ol>
       {% for qi in queue[1:] %}
       <li>{{qi["name"]}} - {{qi["artists"]}}</li>

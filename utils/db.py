@@ -12,7 +12,6 @@ def exec_query(query, params=()):
         lines = setup_script.readlines()
         cur = conn.cursor()
         for line in lines:
-            print(line)
             cur.execute(line)
         conn.commit()
 
